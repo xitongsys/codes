@@ -1,7 +1,6 @@
 import java.util.Arrays;
 /**
- * This problems are written for interview by xitongsys
- * 
+ * This problems are written for interview by xitongsys.
  */
 
 public class TaskA {
@@ -14,17 +13,23 @@ public class TaskA {
     }
     public static void main(String[] args) throws Exception {
         Solution sol = new Solution();
-        int[] nums = new int[]{2,2,2,2,3,3,3};
-        nums = new int[]{2,2,2,3,3,3,3};
-        nums = new int[]{1,1,2,2,2,3};
 
-        nums = new int[]{2,2,2,2,2,3,3,3};
-        int[] ans = sol.makeZigzag(nums);
-        outputArray(ans);
-        System.out.println(sol.canZigzag(nums));
+        int[][] cases = new int[][]{
+            new int[]{2,2,2,2,3,3,3},
+            new int[]{2,2,2,3,3,3,3},
+            new int[]{1,1,2,2,2,3},
+            new int[]{2,2,2,2,2,3,3,3},
+            new int[]{2,2,3,3,3,5,6}
+        };
+
+        for(int[] c : cases){
+            int[] ans = sol.makeZigzag(c);
+            System.out.println(sol.canZigzag(c));
+            outputArray(ans);
+            System.out.println("");
+        }
     }
 }
-
 
 class Solution {
     /**
@@ -34,10 +39,6 @@ class Solution {
      * 
      * Example: 
      * [1,2,3,4,5] -> [1,3,2,5,4]
-     * 
-     * 
-     * @param nums
-     * @return
      */
     public int[] makeZigzagDistinct(int[] nums) {
         int n = nums.length;
@@ -61,7 +62,7 @@ class Solution {
     }
 
     /**
-     * Give you an array with numbers(may have duplicated numbers), please arrange them to zigzag shape. If there are multiple answers, you can give any one of them.
+     * Give you an array with numbers(may have duplicated numbers), please arrange them to zigzag shape. If there are multiple answers, you can give any one of them. If there is no answer, return an empty array.
      * 
      * Constraints:
      * 3 < nums.length < 1e5
@@ -127,14 +128,13 @@ class Solution {
         if(ok) return ans;
         return new int[]{};
     }
-
    
     /**
      * Give you an ordered array with numbers(may have duplicated numbers), please check if it can be arranged to zigzag shape.
      * 
      * Constraints:
-     * 3 < nums.length < inf 
-     * (upper bound has no constraints, it may be very large and you can't iterate them in an accepted time. But you can get the length of the array and value by index.)
+     * 3 < nums.length < INF 
+     * (upper bound has no constraints, it may be very large and you can't iterate them in an accepted time. But you can get the length of the array and any value by index.)
      * 
      * Example: 
      * [1,2,3,3,5] -> true
@@ -147,21 +147,17 @@ class Solution {
         int m = (n + 1) / 2;
         int bi = n - m;
         if(nums[bi-1] < nums[bi]) return true;
-
-        int t = nums[m];
-        int[] bs = binSearch(nums, t);
-        int b = bs[0], e = bs[1];
-        if(e - bi < b) return true;
-
-        if(n % 2 == 0) return false;
-
         m = n / 2;
         bi = n - m;
         if(nums[bi-1] < nums[bi]) return true;
-        t = nums[m];
-        bs = binSearch(nums, t);
-        b = bs[0]; e = bs[1];
-        if(e - bi + 1 < bi) return true;
+
+        m = n / 2;
+        bi = n - m;
+        int t = nums[m];
+        int[] bs = binSearch(nums, t);
+        int b = bs[0], e = bs[1];
+        
+        if(e - bi < b) return true;
         return false;
     }
 
