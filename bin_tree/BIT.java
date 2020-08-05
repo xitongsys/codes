@@ -12,18 +12,19 @@
         }
 
         void add(int idx, int a){
-            if(idx > N){
-                return;
+            while(idx <= N){
+                C[idx] += a;
+                idx += lowbit(idx);
             }
-
-            C[idx] += a;
-            //io.out(idx + " " + lowbit(idx) + "\n");
-            add(idx + lowbit(idx), a);
         }
 
         long sum(int idx){
-            if(idx <= 0) return 0;
-            return sum(idx - lowbit(idx)) + C[idx];
+            long ans = 0;
+            while(idx > 0){
+                ans += C[idx];
+                idx -= lowbit(idx);
+            }
+            return ans;
         }
 
         long query(int l, int r){
