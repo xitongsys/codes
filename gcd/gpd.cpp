@@ -15,3 +15,14 @@ void init()
         }
     }
 }
+
+void decompose(){
+    vector<long long> v;//all prime divisor
+    while(x!=1)
+    {
+        int  y= gpd[x] ;
+        v.push_back(gpd[x]);
+        while(x%y==0) x/=y;
+    }
+}
+
