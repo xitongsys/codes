@@ -5,13 +5,11 @@ public class TaskZ {
     static FastIO io = new FastIO("in.txt");
 
     public static void main(String[] args) throws Exception {
-
-
-
-        io.close();
+        io.flush();
     }
 
     static class FastIO {
+        static StringBuilder sb = new StringBuilder();
         static BufferedReader br;
         static StringTokenizer st;
         static PrintStream ps = new PrintStream(System.out);
@@ -54,19 +52,17 @@ public class TaskZ {
         }
 
         void flush(){
-            ps.flush();
-        }
-
-        void close(){
-            ps.close();
+            System.out.print(sb.toString());
+            sb.setLength(0);
         }
 
         void print(Object o){
-            ps.print(o);
+            sb.append(o);
         }
 
         void println(Object o){
-            ps.println(o);
+            sb.append(o);
+            sb.append('\n');
         }
 
         String nextLine() {
