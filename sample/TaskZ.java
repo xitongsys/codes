@@ -1,5 +1,10 @@
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TaskZ {
     static FastIO io = new FastIO("in.txt");
@@ -7,7 +12,73 @@ public class TaskZ {
     public static void main(String[] args) throws Exception {
         io.flush();
     }
+    
+    static class Util {
+        static <T> void shuffle(T[] ts) {
+            int n = ts.length;
+            Random random = new Random();
+            for (int i = n - 1; i >= 0; i--) {
+                int j = random.nextInt(i + 1);
+                if (j != i) {
+                    T tmp = ts[i];
+                    ts[i] = ts[j];
+                    ts[j] = tmp;
+                }
+            }
+        }
 
+        static void shuffle(int[] ts) {
+            int n = ts.length;
+            Random random = new Random();
+            for (int i = n - 1; i >= 0; i--) {
+                int j = random.nextInt(i + 1);
+                if (j != i) {
+                    int tmp = ts[i];
+                    ts[i] = ts[j];
+                    ts[j] = tmp;
+                }
+            }
+        }
+
+        static void shuffle(long[] ts) {
+            int n = ts.length;
+            Random random = new Random();
+            for (int i = n - 1; i >= 0; i--) {
+                int j = random.nextInt(i + 1);
+                if (j != i) {
+                    long tmp = ts[i];
+                    ts[i] = ts[j];
+                    ts[j] = tmp;
+                }
+            }
+        }
+
+        static void shuffle(double[] ts) {
+            int n = ts.length;
+            Random random = new Random();
+            for (int i = n - 1; i >= 0; i--) {
+                int j = random.nextInt(i + 1);
+                if (j != i) {
+                    double tmp = ts[i];
+                    ts[i] = ts[j];
+                    ts[j] = tmp;
+                }
+            }
+        }
+
+        static void shuffle(char[] ts) {
+            int n = ts.length;
+            Random random = new Random();
+            for (int i = n - 1; i >= 0; i--) {
+                int j = random.nextInt(i + 1);
+                if (j != i) {
+                    char tmp = ts[i];
+                    ts[i] = ts[j];
+                    ts[j] = tmp;
+                }
+            }
+        }
+    }
     static class FastIO {
         static StringBuilder sb = new StringBuilder();
         static BufferedReader br;
