@@ -2,6 +2,18 @@
 using namespace std;
 typedef long long ll;
 
+ll mpow(ll a, ll n, ll mod){
+	if(n == 0) return 1;
+	ll r = mpow(a, n/2, mod);
+	r *= r; r %= mod;
+	if(n % 2) r *= a;
+	return r % mod;
+}
+
+ll inv(ll a, ll mod){
+	return mpow(a, mod - 2, mod);
+}
+
 ll gcd(ll a, ll b){
     if(b==0) return a;
     return gcd(b, a%b);
