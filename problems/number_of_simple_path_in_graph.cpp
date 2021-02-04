@@ -1,5 +1,5 @@
 /*
- * Give a connected graph with n edges and n point.
+ * Give a (connected/not connected) graph with n edges and n point.
  * Give m queries [[u0,v0],[u1,v1],...,[um, vm]]
  * return the number of simple path between [ui,vi].
  *
