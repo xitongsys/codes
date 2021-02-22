@@ -6,10 +6,26 @@
  * 0 < pi < 1e5
  */
 
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <assert.h>
+#include <bitset>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <tuple>
+#include <vector>
+#include <random>
 using namespace std;
 
-double maxProfitPerDay(vector<double> ps){
+double maxProfitPerDay_NLogN(vector<double> ps){
 	int n = ps.size();
 	double l = -1e6, r = 1e6;
 	while(r - l > 1e-4){
@@ -33,6 +49,16 @@ double maxProfitPerDay(vector<double> ps){
 	return (l+r)/2;
 }
 
+double maxProfitPerDay_N(vector<double> ps){
+	int n = ps.size();
+	double ans = ps[1] - ps[0];
+	for(int i=0; i+1<n; i++){
+		ans = max(ans, ps[i+1] - ps[i]);
+	}
+	return ans;
+
+}
+
 double check(vector<double> ps){
 	int n = ps.size();
 	double ans = -1e6;
@@ -54,11 +80,13 @@ void test(){
 			double p = e() % 10000000;
 			ps.push_back(p / 100);
 		}
-		cout<<check(ps)<<" "<<maxProfitPerDay(ps)<<endl;
+		cout<<check(ps)<<" "<<maxProfitPerDay_NLogN(ps)<<" "<<maxProfitPerDay_N(ps)<<endl;
 	}
 }
 
 int main(){
-	test();
+	vector<double> ps = {6,5,3,2,1};
+	cout<<check(ps)<<" "<<maxProfitPerDay_NLogN(ps)<<" "<<maxProfitPerDay_N(ps)<<endl;
+	//test();
 	return 0;
 }
