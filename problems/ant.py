@@ -7,7 +7,7 @@
 from typing import List
 
 
-def solve(L: int, ps: List[int], vs: List[int]):
+def solve(L: int, ps: List[int], vs: List[int]) -> float:
     n = len(ps)
     res = 0
     for i in range(n):
@@ -26,7 +26,7 @@ print(solve(10, [1, 2, 3], [1, -1, 2]))
 # 所有掉落时间和掉落左右可以确定，分别分配给左右蚂蚁即可
 
 
-def solve(L: int, ps: List[int], vs: List[int]):
+def solve(L: int, ps: List[int], vs: List[int]) -> List[float]:
     n = len(ps)
     ts = []
     for i in range(n):
