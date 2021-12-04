@@ -16,7 +16,7 @@
 
 import math
 
-cups = [1, 5]
+cups = [1, 2, 4, 5, 3, 4, 10, 2]
 c0 = cups[-1]
 N, V = len(cups), 20
 M = 200
