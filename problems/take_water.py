@@ -2,7 +2,7 @@
 #
 # 有N(<=10) 个人，每个人水杯的容量是[v0, v1, ... , vN-1], (v[i] <= 10)
 # 饮水机桶的容量为 V ( V < 100 and V >= max(v[i]) )
-# 每个人打水时间是完全随机的。每次打水必须把自己水杯灌满
+# 每个人打水时间是完全随机的, 每次打水必须把自己水杯灌满
 # 如果不够，就需要换桶水。如果正好用完，不需要换
 # 初始状态，饮水机没有水
 # 求第N个人第一次打水时需要换水的概率 ( 误差 < 1e-6 )
@@ -11,9 +11,9 @@
 
 import math
 
-cups = [1, 2]
+cups = [1, 5]
 c0 = cups[-1]
-N, V = len(cups), 3
+N, V = len(cups), 20
 M = 200
 
 dp = [[[-1 for _ in range(V)] for _ in range(M)] for _ in range(N)]
@@ -60,7 +60,7 @@ def solve() -> float:
 
 print(solve())
 
-#### check special case ####
+#### check special case ( only 2 people ) ####
 def check():
     res = 0
     c0, c1 = cups[0], cups[1]
