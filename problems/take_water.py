@@ -13,7 +13,7 @@ import math
 
 cups = [1, 2]
 c0 = cups[-1]
-N, V = len(cups), 100
+N, V = len(cups), 3
 M = 200
 
 dp = [[[-1 for _ in range(V)] for _ in range(M)] for _ in range(N)]
@@ -27,7 +27,7 @@ def dfs(n: int, m: int, v: int) -> float:
     if m == 0 and v > 0:
         return 0
     if n == 0:
-        if cups[n] * m != v:
+        if (cups[n] * m) % V != v:
             return 0
         return 1
 
@@ -41,14 +41,14 @@ def dfs(n: int, m: int, v: int) -> float:
 
 
 def solve() -> float:
-    res = 1/N
-    for i in range(1, M):
+    res = 0
+    for i in range(0, M):
         total, change = 0, 0
         for v in range(0, V):
             dv = V - v
             if dv == V:
                 dv = 0
-            cnt = dfs(N-1, i, v)
+            cnt = dfs(N-2, i, v)
             if dv < c0:
                 change += cnt
             total += cnt
@@ -59,3 +59,17 @@ def solve() -> float:
 
 
 print(solve())
+
+#### check special case ####
+def check():
+    res = 0
+    c0, c1 = cups[0], cups[1]
+    for i in range(0, M):
+        v = V - (c0 * i) % V
+        if v == V:
+            v = 0
+        if v < c1:
+            res += ((N-1)/N) ** i * (1/N) 
+    return res
+
+print(check())
