@@ -9,3 +9,10 @@
 # 此式子有解析解
 
 
+def cal(N, M):
+    if M > N:
+        N, M = M, N
+    res = 0
+    for x in range(M):
+        res += (N-x) * (M-x) * (x+1)
+    return res
