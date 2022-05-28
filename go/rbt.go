@@ -1,5 +1,4 @@
-
-package rb
+package main
 
 type RBKeyType interface {
 	Less(RBKeyType) bool
@@ -11,6 +10,10 @@ type RBValueType interface {}
 
 type RBTree struct {
 	root *RBNode
+}
+
+func NewRBTree() *RBTree {
+	return &RBTree{}
 }
 
 func (rbt *RBTree) Add(key RBKeyType, value RBValueType) {
@@ -26,7 +29,15 @@ func (rbt *RBTree) Remove(key RBKeyType) {
 	if rbt.root == nil {
 		return
 	}
-	rbt.root.Remove(key)
+
+	if rbt.root.left == nil && rbt.root.right == nil && rbt.root.key.Equal(key) {
+		rbt.root = nil
+		return
+	}
+
+	if node := rbt.root.Find(key); node != nil {
+		node.Remove()
+	}
 }
 
 func (rbt *RBTree) LowerBound(key RBKeyType) *RBNode {
@@ -93,7 +104,98 @@ func (rbnode *RBNode) Add(key RBKeyType, value RBValueType) {
 	}
 }
 
-func (rbnode *RBNode) Remove(key RBKeyType) {
+func (rbnode *RBNode) remove() {
+	p := rbnode.parent
+	if p != nil {
+		if p.left == rbnode {
+			p.left = nil
+		}else{
+			p.right = nil
+		}
+	}
+}
+
+func (rbnode *RBNode) Remove() {
+	p := rbnode.parent
+	if n := rbnode.Next(); n != nil {
+		rbnode.key = n.key
+		rbnode.value = n.value
+		n.Remove()
+
+	}else{
+		if rbnode.color == 1 { // red leaf node 
+			if p.left == rbnode { 
+				p.left = nil
+
+			}else{ 
+				p.right = nil
+			}
+
+		} else {
+			if rbnode.left != nil { // black with one left red child
+				rbnode.key = rbnode.left.key
+				rbnode.value = rbnode.left.value
+				rbnode.left = nil
+
+			} else { // black leaf node
+				s := p.Sibling()
+
+				if p.color == 1 { // parent red
+					if s.left == nil && s.right == nil {
+						p.color = 0
+						s.color = 1
+						rbnode.remove()
+
+					} else if s.left != nil && s.right == nil {
+						rbnode.remove()
+						s.RotateRight()
+						s.parent.color = 0
+						s.color = 1
+						p.RotateLeft()
+
+					} else if s.left == nil && s.right != nil {
+						rbnode.remove()
+						p.RotateLeft()
+
+					} else {
+						rbnode.remove()
+						p.RotateLeft()
+						p = p.parent
+						p.color = 1
+						p.left.color = 0
+						p.right.color = 1
+					}
+
+				} else { // parent black
+					if s.color == 1 { // sibling red
+						rbnode.remove()
+						s.color = 0
+						s.left.color = 1
+						p.RotateLeft()
+
+					} else { // sibling black
+						rbnode.remove()
+						if s.left == nil && s.right != nil {
+							s.right.color = 0
+							p.RotateLeft()
+
+						} else if s.left != nil && s.right == nil {
+							s.color = 1
+							s.left.color = 0
+							s.RotateRight()
+
+						} else if s.left != nil && s.right != nil {
+							s.right.color = 0
+							p.RotateLeft()
+
+						} else {
+							s.color = 1
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
@@ -178,7 +280,31 @@ func (rbnode *RBNode) Adjust() {
 	}
 
 	ps := p.Sibling()
-	if ps == nil || ps.color == 1 {
+	if ps == nil || ps.color == 0 { // parent red, parent-sibling black
+		if p == pp.left && rbnode == p.left { // LL
+			p.color = 0
+			pp.color = 1
+			pp.RotateRight()
+
+		} else if p == pp.left && rbnode == p.right { // LR -> LL
+			p.RotateLeft()
+			rbnode.Adjust()
+
+		} else if p == pp.right && rbnode == p.right { // RR
+			p.color = 0
+			pp.color = 1
+			pp.RotateLeft()
+
+		} else if p == pp.right && rbnode == p.left { // RL -> RR
+			p.RotateRight()
+			rbnode.Adjust()
+		}
+
+	} else { // parent red, parent-sibling red
+		p.color = 0
+		ps.color = 0
+		pp.color = 1
+		pp.Adjust()
 	}
 }
 
