@@ -10,8 +10,7 @@ type RBKeyType interface {
 	Equal(RBKeyType) bool
 }
 
-type RBValueType interface {}
-
+type RBValueType interface{}
 
 type RBTree struct {
 	Root *RBNode
@@ -62,7 +61,6 @@ func (rbt *RBTree) Check() int {
 	return rbt.Root.Check()
 }
 
-
 func (rbt *RBTree) String() string {
 	if rbt.Root == nil {
 		return "nil"
@@ -77,22 +75,44 @@ func (rbt *RBTree) Find(key RBKeyType) *RBNode {
 	return rbt.Root.Find(key)
 }
 
+func (rbt *RBTree) Begin() *RBNode {
+	node := rbt.Root
+	if node == nil {
+		return nil
+	}
+
+	for node.Left != nil {
+		node = node.Left
+	}
+	return node
+}
+
+func (rbt *RBTree) Last() *RBNode {
+	node := rbt.Root
+	if node == nil {
+		return nil
+	}
+
+	for node.Right != nil {
+		node = node.Right
+	}
+	return node
+}
 
 type RBNode struct {
 	Left, Right, Parent *RBNode
-	Color int //0: black, 1: red
-	Key RBKeyType
-	Value RBValueType
+	Color               int //0: black, 1: red
+	Key                 RBKeyType
+	Value               RBValueType
 }
 
 func NewRBNode(key RBKeyType, value RBValueType, color int) *RBNode {
 	return &RBNode{
 		Color: color,
-		Key: key,
+		Key:   key,
 		Value: value,
 	}
 }
-
 
 func (rbnode *RBNode) Add(key RBKeyType, value RBValueType) {
 	if rbnode.Key.Equal(key) {
@@ -100,28 +120,28 @@ func (rbnode *RBNode) Add(key RBKeyType, value RBValueType) {
 
 	} else if rbnode.Key.Less(key) {
 		if rbnode.Right == nil {
-			rbnode.Right = &RBNode {
-				Color: 1,
-				Key: key,
-				Value: value,
+			rbnode.Right = &RBNode{
+				Color:  1,
+				Key:    key,
+				Value:  value,
 				Parent: rbnode,
 			}
 			rbnode.Right.Adjust()
-		}else{
+		} else {
 			rbnode.Right.Add(key, value)
 		}
 
-	}else{
+	} else {
 		if rbnode.Left == nil {
-			rbnode.Left = &RBNode {
-				Color: 1,
-				Key: key,
-				Value: value,
+			rbnode.Left = &RBNode{
+				Color:  1,
+				Key:    key,
+				Value:  value,
 				Parent: rbnode,
 			}
 			rbnode.Left.Adjust()
 
-		}else{
+		} else {
 			rbnode.Left.Add(key, value)
 		}
 	}
@@ -132,7 +152,7 @@ func (rbnode *RBNode) remove() {
 	if p != nil {
 		if p.Left == rbnode {
 			p.Left = nil
-		}else{
+		} else {
 			p.Right = nil
 		}
 	}
@@ -145,12 +165,12 @@ func (rbnode *RBNode) Remove() {
 		rbnode.Value = n.Value
 		n.Remove()
 
-	}else{
-		if rbnode.Color == 1 { // red leaf node 
-			if p.Left == rbnode { 
+	} else {
+		if rbnode.Color == 1 { // red leaf node
+			if p.Left == rbnode {
 				p.Left = nil
 
-			}else{ 
+			} else {
 				p.Right = nil
 			}
 
@@ -233,7 +253,6 @@ func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
 		return rbnode.Right.LowerBound(key)
 	}
 
-
 	if rbnode.Left == nil {
 		return rbnode
 	}
@@ -248,7 +267,7 @@ func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
 
 func (rbnode *RBNode) Find(key RBKeyType) *RBNode {
 	node := rbnode.LowerBound(key)
-	if node != nil && ! node.Key.Equal(key){
+	if node != nil && !node.Key.Equal(key) {
 		node = nil
 	}
 	return node
@@ -270,7 +289,7 @@ func (rbnode *RBNode) Next() *RBNode {
 
 func (rbnode *RBNode) Prev() *RBNode {
 	if rbnode.Left != nil {
-		node := rbnode.Left;
+		node := rbnode.Left
 		for node.Right != nil {
 			node = node.Right
 		}
@@ -340,7 +359,7 @@ func (rbnode *RBNode) Adjust() {
 func (rbnode *RBNode) RotateLeft() {
 	p, right := rbnode.Parent, rbnode.Right
 	rbnode.Right = right.Left
-	rbnode.Parent = right 
+	rbnode.Parent = right
 	right.Left = rbnode
 	right.Parent = p
 	if p != nil {
@@ -426,15 +445,15 @@ func (rbnode *RBNode) String() string {
 
 	nl, nr := maxlen(linesLeft), maxlen(linesRight)
 
-	nodeStr := "(" + fmt.Sprint(rbnode.Key) + "," + fmt.Sprint(rbnode.Color) + ")" 
+	nodeStr := "(" + fmt.Sprint(rbnode.Key) + "," + fmt.Sprint(rbnode.Color) + ")"
 
 	res := nspace(nl) + nodeStr + nspace(nr) + "\n"
 
-	for i := 0; i < len(linesLeft) || i < len(linesRight) ; i++ {
-		n := nl 
+	for i := 0; i < len(linesLeft) || i < len(linesRight); i++ {
+		n := nl
 		if i < len(linesLeft) {
 			n -= len(linesLeft[i])
-			res += linesLeft[i] 
+			res += linesLeft[i]
 		}
 		res += nspace(n + len(nodeStr))
 
@@ -446,4 +465,3 @@ func (rbnode *RBNode) String() string {
 
 	return res
 }
-
