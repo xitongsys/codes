@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type RBKeyType interface {
 	Less(RBKeyType) bool
@@ -272,7 +275,14 @@ func (rbnode *RBNode) Prev() *RBNode {
 			node = node.Right
 		}
 		return node
+
+	} else if rbnode.Parent != nil && rbnode == rbnode.Parent.Right {
+		return rbnode.Parent
+
+	} else if rbnode.Parent != nil && rbnode == rbnode.Parent.Left {
+		return rbnode.Parent.Parent
 	}
+
 	return nil
 }
 
@@ -386,14 +396,54 @@ func (rbnode *RBNode) Check() int {
 }
 
 func (rbnode *RBNode) String() string {
-	res := ""
+	resLeft, resRight := "", ""
 	if rbnode.Left != nil {
-		res = rbnode.Left.String()
+		resLeft = rbnode.Left.String()
 	}
-	res += " " + fmt.Sprint(rbnode.Key)
 	if rbnode.Right != nil {
-		res += rbnode.Right.String()
+		resRight = rbnode.Right.String()
 	}
+	linesLeft := strings.Split(resLeft, "\n")
+	linesRight := strings.Split(resRight, "\n")
+
+	maxlen := func(ss []string) int {
+		res := 0
+		for i := 0; i < len(ss); i++ {
+			if len(ss[i]) > res {
+				res = len(ss[i])
+			}
+		}
+		return res
+	}
+
+	nspace := func(n int) string {
+		res := ""
+		for i := 0; i < n; i++ {
+			res += " "
+		}
+		return res
+	}
+
+	nl, nr := maxlen(linesLeft), maxlen(linesRight)
+
+	nodeStr := "(" + fmt.Sprint(rbnode.Key) + "," + fmt.Sprint(rbnode.Color) + ")" 
+
+	res := nspace(nl) + nodeStr + nspace(nr) + "\n"
+
+	for i := 0; i < len(linesLeft) || i < len(linesRight) ; i++ {
+		n := nl 
+		if i < len(linesLeft) {
+			n -= len(linesLeft[i])
+			res += linesLeft[i] 
+		}
+		res += nspace(n + len(nodeStr))
+
+		if i < len(linesRight) {
+			res += linesRight[i]
+		}
+		res += "\n"
+	}
+
 	return res
 }
 
