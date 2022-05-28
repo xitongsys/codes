@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type RBKeyType interface {
 	Less(RBKeyType) bool
 	Equal(RBKeyType) bool
@@ -9,7 +11,7 @@ type RBValueType interface {}
 
 
 type RBTree struct {
-	root *RBNode
+	Root *RBNode
 }
 
 func NewRBTree() *RBTree {
@@ -17,179 +19,197 @@ func NewRBTree() *RBTree {
 }
 
 func (rbt *RBTree) Add(key RBKeyType, value RBValueType) {
-	if rbt.root == nil {
-		rbt.root = NewRBNode(key, value, 0)
+	if rbt.Root == nil {
+		rbt.Root = NewRBNode(key, value, 0)
 		return
 	}
-	rbt.root.Add(key, value)
+	rbt.Root.Add(key, value)
 
+	for rbt.Root.Parent != nil {
+		rbt.Root = rbt.Root.Parent
+	}
 }
 
 func (rbt *RBTree) Remove(key RBKeyType) {
-	if rbt.root == nil {
+	if rbt.Root == nil {
 		return
 	}
 
-	if rbt.root.left == nil && rbt.root.right == nil && rbt.root.key.Equal(key) {
-		rbt.root = nil
+	if rbt.Root.Left == nil && rbt.Root.Right == nil && rbt.Root.Key.Equal(key) {
+		rbt.Root = nil
 		return
 	}
 
-	if node := rbt.root.Find(key); node != nil {
+	if node := rbt.Root.Find(key); node != nil {
 		node.Remove()
 	}
 }
 
 func (rbt *RBTree) LowerBound(key RBKeyType) *RBNode {
-	if rbt.root == nil {
+	if rbt.Root == nil {
 		return nil
 	}
-	return rbt.root.LowerBound(key)
+	return rbt.Root.LowerBound(key)
+}
+
+func (rbt *RBTree) Check() int {
+	if rbt.Root == nil {
+		return 0
+	}
+	return rbt.Root.Check()
+}
+
+
+func (rbt *RBTree) String() string {
+	if rbt.Root == nil {
+		return "nil"
+	}
+	return rbt.Root.String()
 }
 
 func (rbt *RBTree) Find(key RBKeyType) *RBNode {
-	if rbt.root == nil {
+	if rbt.Root == nil {
 		return nil
 	}
-	return rbt.root.Find(key)
+	return rbt.Root.Find(key)
 }
 
 
 type RBNode struct {
-	left, right, parent *RBNode
-	color int //0: black, 1: red
-	key RBKeyType
-	value RBValueType
+	Left, Right, Parent *RBNode
+	Color int //0: black, 1: red
+	Key RBKeyType
+	Value RBValueType
 }
 
 func NewRBNode(key RBKeyType, value RBValueType, color int) *RBNode {
 	return &RBNode{
-		color: color,
-		key: key,
-		value: value,
+		Color: color,
+		Key: key,
+		Value: value,
 	}
 }
 
 
 func (rbnode *RBNode) Add(key RBKeyType, value RBValueType) {
-	if rbnode.key.Equal(key) {
-		rbnode.value = value
+	if rbnode.Key.Equal(key) {
+		rbnode.Value = value
 
-	} else if rbnode.key.Less(key) {
-		if rbnode.right == nil {
-			rbnode.right = &RBNode {
-				color: 1,
-				key: key,
-				value: value,
-				parent: rbnode,
+	} else if rbnode.Key.Less(key) {
+		if rbnode.Right == nil {
+			rbnode.Right = &RBNode {
+				Color: 1,
+				Key: key,
+				Value: value,
+				Parent: rbnode,
 			}
-			rbnode.right.Adjust()
+			rbnode.Right.Adjust()
 		}else{
-			rbnode.right.Add(key, value)
+			rbnode.Right.Add(key, value)
 		}
 
 	}else{
-		if rbnode.left == nil {
-			rbnode.left = &RBNode {
-				color: 1,
-				key: key,
-				value: value,
-				parent: rbnode,
+		if rbnode.Left == nil {
+			rbnode.Left = &RBNode {
+				Color: 1,
+				Key: key,
+				Value: value,
+				Parent: rbnode,
 			}
-			rbnode.left.Adjust()
+			rbnode.Left.Adjust()
 
 		}else{
-			rbnode.left.Add(key, value)
+			rbnode.Left.Add(key, value)
 		}
 	}
 }
 
 func (rbnode *RBNode) remove() {
-	p := rbnode.parent
+	p := rbnode.Parent
 	if p != nil {
-		if p.left == rbnode {
-			p.left = nil
+		if p.Left == rbnode {
+			p.Left = nil
 		}else{
-			p.right = nil
+			p.Right = nil
 		}
 	}
 }
 
 func (rbnode *RBNode) Remove() {
-	p := rbnode.parent
+	p := rbnode.Parent
 	if n := rbnode.Next(); n != nil {
-		rbnode.key = n.key
-		rbnode.value = n.value
+		rbnode.Key = n.Key
+		rbnode.Value = n.Value
 		n.Remove()
 
 	}else{
-		if rbnode.color == 1 { // red leaf node 
-			if p.left == rbnode { 
-				p.left = nil
+		if rbnode.Color == 1 { // red leaf node 
+			if p.Left == rbnode { 
+				p.Left = nil
 
 			}else{ 
-				p.right = nil
+				p.Right = nil
 			}
 
 		} else {
-			if rbnode.left != nil { // black with one left red child
-				rbnode.key = rbnode.left.key
-				rbnode.value = rbnode.left.value
-				rbnode.left = nil
+			if rbnode.Left != nil { // black with one left red child
+				rbnode.Key = rbnode.Left.Key
+				rbnode.Value = rbnode.Left.Value
+				rbnode.Left = nil
 
 			} else { // black leaf node
 				s := p.Sibling()
 
-				if p.color == 1 { // parent red
-					if s.left == nil && s.right == nil {
-						p.color = 0
-						s.color = 1
+				if p.Color == 1 { // parent red
+					if s.Left == nil && s.Right == nil {
+						p.Color = 0
+						s.Color = 1
 						rbnode.remove()
 
-					} else if s.left != nil && s.right == nil {
+					} else if s.Left != nil && s.Right == nil {
 						rbnode.remove()
 						s.RotateRight()
-						s.parent.color = 0
-						s.color = 1
+						s.Parent.Color = 0
+						s.Color = 1
 						p.RotateLeft()
 
-					} else if s.left == nil && s.right != nil {
+					} else if s.Left == nil && s.Right != nil {
 						rbnode.remove()
 						p.RotateLeft()
 
 					} else {
 						rbnode.remove()
 						p.RotateLeft()
-						p = p.parent
-						p.color = 1
-						p.left.color = 0
-						p.right.color = 1
+						p = p.Parent
+						p.Color = 1
+						p.Left.Color = 0
+						p.Right.Color = 1
 					}
 
 				} else { // parent black
-					if s.color == 1 { // sibling red
+					if s.Color == 1 { // sibling red
 						rbnode.remove()
-						s.color = 0
-						s.left.color = 1
+						s.Color = 0
+						s.Left.Color = 1
 						p.RotateLeft()
 
 					} else { // sibling black
 						rbnode.remove()
-						if s.left == nil && s.right != nil {
-							s.right.color = 0
+						if s.Left == nil && s.Right != nil {
+							s.Right.Color = 0
 							p.RotateLeft()
 
-						} else if s.left != nil && s.right == nil {
-							s.color = 1
-							s.left.color = 0
+						} else if s.Left != nil && s.Right == nil {
+							s.Color = 1
+							s.Left.Color = 0
 							s.RotateRight()
 
-						} else if s.left != nil && s.right != nil {
-							s.right.color = 0
+						} else if s.Left != nil && s.Right != nil {
+							s.Right.Color = 0
 							p.RotateLeft()
 
 						} else {
-							s.color = 1
+							s.Color = 1
 						}
 					}
 				}
@@ -199,23 +219,23 @@ func (rbnode *RBNode) Remove() {
 }
 
 func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
-	if rbnode.key.Equal(key) {
+	if rbnode.Key.Equal(key) {
 		return rbnode
 	}
 
-	if rbnode.key.Less(key) {
-		if rbnode.right == nil {
+	if rbnode.Key.Less(key) {
+		if rbnode.Right == nil {
 			return nil
 		}
-		return rbnode.right.LowerBound(key)
+		return rbnode.Right.LowerBound(key)
 	}
 
 
-	if rbnode.left == nil {
+	if rbnode.Left == nil {
 		return rbnode
 	}
 
-	node := rbnode.left.LowerBound(key)
+	node := rbnode.Left.LowerBound(key)
 	if node == nil {
 		node = rbnode
 	}
@@ -225,31 +245,31 @@ func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
 
 func (rbnode *RBNode) Find(key RBKeyType) *RBNode {
 	node := rbnode.LowerBound(key)
-	if node != nil && ! node.key.Equal(key){
+	if node != nil && ! node.Key.Equal(key){
 		node = nil
 	}
 	return node
 }
 
 func (rbnode *RBNode) Next() *RBNode {
-	if rbnode.right != nil {
-		node := rbnode.right
-		for node.left != nil {
-			node = node.left
+	if rbnode.Right != nil {
+		node := rbnode.Right
+		for node.Left != nil {
+			node = node.Left
 		}
 		return node
 
-	} else if rbnode.parent != nil {
-		return rbnode.parent
+	} else if rbnode.Parent != nil {
+		return rbnode.Parent
 	}
 	return nil
 }
 
 func (rbnode *RBNode) Prev() *RBNode {
-	if rbnode.left != nil {
-		node := rbnode.left;
-		for node.right != nil {
-			node = node.right
+	if rbnode.Left != nil {
+		node := rbnode.Left;
+		for node.Right != nil {
+			node = node.Right
 		}
 		return node
 	}
@@ -257,71 +277,123 @@ func (rbnode *RBNode) Prev() *RBNode {
 }
 
 func (rbnode *RBNode) Sibling() *RBNode {
-	if rbnode.parent == nil {
+	if rbnode.Parent == nil {
 		return nil
 	}
 
-	if rbnode == rbnode.parent.left {
-		return rbnode.parent.right
+	if rbnode == rbnode.Parent.Left {
+		return rbnode.Parent.Right
 	}
-	return rbnode.parent.left
+	return rbnode.Parent.Left
 }
 
-
 func (rbnode *RBNode) Adjust() {
-	if rbnode.parent == nil {
-		rbnode.color = 0
+	if rbnode.Parent == nil {
+		rbnode.Color = 0
 		return
 	}
 
-	p, pp := rbnode.parent, rbnode.parent.parent
-	if p.color == 0 {
+	p, pp := rbnode.Parent, rbnode.Parent.Parent
+	if p.Color == 0 {
 		return
 	}
 
 	ps := p.Sibling()
-	if ps == nil || ps.color == 0 { // parent red, parent-sibling black
-		if p == pp.left && rbnode == p.left { // LL
-			p.color = 0
-			pp.color = 1
+	if ps == nil || ps.Color == 0 { // parent red, parent-sibling black
+		if p == pp.Left && rbnode == p.Left { // LL
+			p.Color = 0
+			pp.Color = 1
 			pp.RotateRight()
 
-		} else if p == pp.left && rbnode == p.right { // LR -> LL
+		} else if p == pp.Left && rbnode == p.Right { // LR -> LL
 			p.RotateLeft()
 			rbnode.Adjust()
 
-		} else if p == pp.right && rbnode == p.right { // RR
-			p.color = 0
-			pp.color = 1
+		} else if p == pp.Right && rbnode == p.Right { // RR
+			p.Color = 0
+			pp.Color = 1
 			pp.RotateLeft()
 
-		} else if p == pp.right && rbnode == p.left { // RL -> RR
+		} else if p == pp.Right && rbnode == p.Left { // RL -> RR
 			p.RotateRight()
 			rbnode.Adjust()
 		}
 
 	} else { // parent red, parent-sibling red
-		p.color = 0
-		ps.color = 0
-		pp.color = 1
+		p.Color = 0
+		ps.Color = 0
+		pp.Color = 1
 		pp.Adjust()
 	}
 }
 
 func (rbnode *RBNode) RotateLeft() {
-	p, right := rbnode.parent, rbnode.right
-	rbnode.right = right.left
-	rbnode.parent = right 
-	right.left = rbnode
-	right.parent = p
+	p, right := rbnode.Parent, rbnode.Right
+	rbnode.Right = right.Left
+	rbnode.Parent = right 
+	right.Left = rbnode
+	right.Parent = p
+	if p != nil {
+		if p.Left == rbnode {
+			p.Left = right
+		} else {
+			p.Right = right
+		}
+	}
 }
 
 func (rbnode *RBNode) RotateRight() {
-	p, left := rbnode.parent, rbnode.left
-	rbnode.left = left.right
-	rbnode.parent = left
-	left.right = rbnode
-	left.parent = p
+	p, left := rbnode.Parent, rbnode.Left
+	rbnode.Left = left.Right
+	rbnode.Parent = left
+	left.Right = rbnode
+	left.Parent = p
+	if p != nil {
+		if p.Left == rbnode {
+			p.Left = left
+		} else {
+			p.Right = left
+		}
+	}
 }
 
+func (rbnode *RBNode) Check() int {
+	hl, hr := 0, 0
+	if rbnode.Left != nil {
+		hl = rbnode.Left.Check()
+		if rbnode.Color == 1 && rbnode.Left.Color == 1 {
+			return -1
+		}
+	}
+
+	if rbnode.Right != nil {
+		hr = rbnode.Right.Check()
+		if rbnode.Color == 1 && rbnode.Right.Color == 1 {
+			return -1
+		}
+	}
+
+	if hl != hr || hl < 0 || hr < 0 {
+		return -1
+	}
+
+	h := hl
+	if rbnode.Color == 0 {
+		h++
+	}
+
+	return h
+}
+
+func (rbnode *RBNode) String() string {
+	res := ""
+	if rbnode.Left != nil {
+		res = rbnode.Left.String()
+	}
+	res += " " + fmt.Sprint(rbnode.Key)
+	if rbnode.Right != nil {
+		res += rbnode.Right.String()
+	}
+	return res
+}
 
