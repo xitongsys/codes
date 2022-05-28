@@ -262,7 +262,7 @@ func (rbnode *RBNode) Next() *RBNode {
 		}
 		return node
 
-	} else if rbnode.Parent != nil {
+	} else if rbnode.Parent != nil && rbnode == rbnode.Parent.Left {
 		return rbnode.Parent
 	}
 	return nil

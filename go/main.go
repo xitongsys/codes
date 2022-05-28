@@ -15,10 +15,11 @@ func (i IntType) Equal(b RBKeyType) bool {
 
 func main() {
 	t := NewRBTree()
-	for a := 0; a < 2; a++ {
+	for a := 10; a >= 0; a-- {
 		t.Add(IntType(a), 1)
+		t.Remove(IntType(a+1))
+		fmt.Println(t.Check())
 	}
-	t.Remove(IntType(0))
 
 	fmt.Println(t.String())
 
