@@ -172,20 +172,30 @@ func (rbnode *RBNode) Adjust() {
 		return
 	}
 
-	par := rbnode.parent
-	if par.color == 0 {
+	p, pp := rbnode.parent, rbnode.parent.parent
+	if p.color == 0 {
 		return
 	}
 
-	parS := par.Sibling()
-
-
-	if parS.color == 1 {
-		par.color = 0
-		parS.color = 0
-
+	ps := p.Sibling()
+	if ps == nil || ps.color == 1 {
 	}
+}
 
+func (rbnode *RBNode) RotateLeft() {
+	p, right := rbnode.parent, rbnode.right
+	rbnode.right = right.left
+	rbnode.parent = right 
+	right.left = rbnode
+	right.parent = p
+}
+
+func (rbnode *RBNode) RotateRight() {
+	p, left := rbnode.parent, rbnode.left
+	rbnode.left = left.right
+	rbnode.parent = left
+	left.right = rbnode
+	left.parent = p
 }
 
 
