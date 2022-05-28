@@ -4,12 +4,8 @@ import "fmt"
 
 type IntType int
 
-func (i IntType) Less(b RBKeyType) bool {
-	return i < b.(IntType)
-}
-
-func (i IntType) Equal(b RBKeyType) bool {
-	return i == b.(IntType)
+func (a IntType) Compare(b RBKeyType) int {
+	return int(a - b.(IntType))
 }
 
 

@@ -6,8 +6,7 @@ import (
 )
 
 type RBKeyType interface {
-	Less(RBKeyType) bool
-	Equal(RBKeyType) bool
+	Compare(RBKeyType) int
 }
 
 type RBValueType interface{}
@@ -37,7 +36,7 @@ func (rbt *RBTree) Remove(key RBKeyType) {
 		return
 	}
 
-	if rbt.Root.Left == nil && rbt.Root.Right == nil && rbt.Root.Key.Equal(key) {
+	if rbt.Root.Left == nil && rbt.Root.Right == nil && rbt.Root.Key.Compare(key) == 0 {
 		rbt.Root = nil
 		return
 	}
@@ -115,10 +114,10 @@ func NewRBNode(key RBKeyType, value RBValueType, color int) *RBNode {
 }
 
 func (rbnode *RBNode) Add(key RBKeyType, value RBValueType) {
-	if rbnode.Key.Equal(key) {
+	if rbnode.Key.Compare(key) == 0 {
 		rbnode.Value = value
 
-	} else if rbnode.Key.Less(key) {
+	} else if rbnode.Key.Compare(key) < 0 {
 		if rbnode.Right == nil {
 			rbnode.Right = &RBNode{
 				Color:  1,
@@ -242,11 +241,11 @@ func (rbnode *RBNode) Remove() {
 }
 
 func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
-	if rbnode.Key.Equal(key) {
+	if rbnode.Key.Compare(key) == 0 {
 		return rbnode
 	}
 
-	if rbnode.Key.Less(key) {
+	if rbnode.Key.Compare(key) < 0 {
 		if rbnode.Right == nil {
 			return nil
 		}
@@ -267,7 +266,7 @@ func (rbnode *RBNode) LowerBound(key RBKeyType) *RBNode {
 
 func (rbnode *RBNode) Find(key RBKeyType) *RBNode {
 	node := rbnode.LowerBound(key)
-	if node != nil && !node.Key.Equal(key) {
+	if node != nil && node.Key.Compare(key) != 0 {
 		node = nil
 	}
 	return node
