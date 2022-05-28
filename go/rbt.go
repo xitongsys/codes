@@ -70,6 +70,30 @@ func (tree *RBTree) Put(key interface{}, value interface{}) {
 	tree.size++
 }
 
+func (tree *RBTree) Begin() *RBNode {
+	if tree.Root == nil {
+		return nil
+	}
+
+	node := tree.Root 
+	for node.Left != nil {
+		node = node.Left
+	}
+	return node
+}
+
+func (tree *RBTree) Last() *RBNode {
+	if tree.Root == nil {
+		return nil
+	}
+
+	node := tree.Root 
+	for node.Right != nil {
+		node = node.Right
+	}
+	return node
+}
+
 func (tree *RBTree) Get(key interface{}) (value interface{}, found bool) {
 	node := tree.lookup(key)
 	if node != nil {
