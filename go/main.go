@@ -2,19 +2,10 @@ package main
 
 import "fmt"
 
-type IntType int
-
-func (a IntType) Compare(b RBKeyType) int {
-	return int(a - b.(IntType))
-}
-
-
 func main() {
-	t := NewRBTree()
+	t := NewRBTree(func(a, b interface{})int{return a.(int) - b.(int)})
 	for a := 10; a >= 0; a-- {
-		t.Add(IntType(a), 1)
-		t.Remove(IntType(a+1))
-		fmt.Println(t.Check())
+		t.Put(a, a)
 	}
 
 	fmt.Println(t.String())
