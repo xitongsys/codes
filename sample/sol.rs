@@ -8,10 +8,13 @@ use std::collections::HashSet;
 struct Solution {}
 
 impl Solution {
-    fn solve(&mut self) {}
+    fn solve(&mut self) {
+
+    }
 
     fn main(&mut self) {
         let mut sc = io::Scanner::default();
+        
     }
 }
 
@@ -27,7 +30,7 @@ mod io {
         buffer: Vec<String>,
     }
     impl Scanner {
-        fn next<T: std::str::FromStr>(&mut self) -> T {
+        pub fn next<T: std::str::FromStr>(&mut self) -> T {
             loop {
                 if let Some(token) = self.buffer.pop() {
                     return token.parse().ok().expect("Failed parse");
