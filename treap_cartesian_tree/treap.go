@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 )
 
 // big heap
@@ -118,7 +119,7 @@ func (treap *Treap) Next(u int) int {
 		if treap.lefts[p] == u {
 			return p
 		} else {
-			for p := treap.pars[u]; p >= 0 && treap.rights[u] == u; u = p {
+			for p = treap.pars[u]; p >= 0 && treap.rights[p] == u; u, p = p, treap.pars[p] {
 			}
 			return p
 		}
@@ -140,7 +141,7 @@ func (treap *Treap) Prev(u int) int {
 		if treap.rights[p] == u {
 			return p
 		} else {
-			for p := treap.pars[u]; p >= 0 && treap.lefts[u] == u; u = p {
+			for p = treap.pars[u]; p >= 0 && treap.lefts[p] == u; u, p = p, treap.pars[p] {
 			}
 			return p
 		}
@@ -322,15 +323,15 @@ func (treap *Treap) print(u int) {
 ///////////////////////////////////////
 
 type Pair struct {
-	a, c int
+	a, i int
 }
 
-func findKthLargest(nums []int, k int) int {
-	mp := NewTreap(func(a, b interface{}) int { return a.(*Pair).a - b.(*Pair).a })
-	cnt := 0
-	for _, a := range nums {
+func findRelativeRanks(score []int) []string {
+	mp := NewTreap(func(a, b interface{}) int { return b.(*Pair).a - a.(*Pair).a })
+	for i, a := range score {
 		p := &Pair{
 			a: a,
+			i: i,
 		}
 
 		it := mp.Get(p)
@@ -338,38 +339,30 @@ func findKthLargest(nums []int, k int) int {
 		if it < 0 {
 			it = mp.Put(p, nil)
 		}
-
-		p = mp.vals[it].(*Pair)
-		p.c++
-
-		cnt++
-
-		//fmt.Println(mp.vals...)
-
-		if cnt > k {
-			it = mp.First()
-			p = mp.vals[it].(*Pair)
-
-			if p.c == 1 {
-				mp.Remove(p)
-			} else {
-				p.c--
-			}
-			cnt--
-		}
-
-		//fmt.Print("-----")
-		//fmt.Println(mp.vals...)
-
 	}
-	return mp.vals[mp.First()].(*Pair).a
+
+	n := len(score)
+	res := make([]string, n)
+	rank := 0
+	it := mp.First()
+	for it >= 0 {
+		i := mp.vals[it].(*Pair).i
+		if rank == 0 {
+			res[i] = "Gold Medal"
+		} else if rank == 1 {
+			res[i] = "Silver Medal"
+		} else if rank == 2 {
+			res[i] = "Bronze Medal"
+		} else {
+			res[i] = strconv.FormatInt(int64(rank+1), 10)
+		}
+		rank++
+		it = mp.Next(it)
+	}
+	return res
 }
 
 func main() {
-
-	nums := []int{3, 2, 3, 1, 2, 4, 5, 5, 6}
-	k := 4
-
-	fmt.Println(findKthLargest(nums, k))
-
+	score := []int{5, 4, 3, 2, 1}
+	fmt.Println(findRelativeRanks(score))
 }
