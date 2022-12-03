@@ -178,6 +178,22 @@ func (treap *Treap) UpperBound(val interface{}) int {
 	return u
 }
 
+func (treap *Treap) First() int {
+	u := treap.root
+	for u >= 0 && treap.lefts[u] >= 0 {
+		u = treap.lefts[u]
+	}
+	return u
+}
+
+func (treap *Treap) Last() int {
+	u := treap.root
+	for u >= 0 && treap.rights[u] >= 0 {
+		u = treap.rights[u]
+	}
+	return u
+}
+
 func (treap *Treap) newNode(val interface{}) int {
 	key := rand.Int()
 	u := treap.n
@@ -220,6 +236,9 @@ func (treap *Treap) rotate(u int) {
 	// left rotate
 	if treap.lefts[p] == u {
 		treap.lefts[p] = treap.rights[u]
+		if treap.rights[u] >= 0 {
+			treap.pars[treap.rights[u]] = p
+		}
 		treap.rights[u] = p
 		if pp := treap.pars[p]; pp >= 0 {
 			if treap.lefts[pp] == p {
@@ -227,9 +246,18 @@ func (treap *Treap) rotate(u int) {
 			} else {
 				treap.rights[pp] = u
 			}
+			treap.pars[u] = pp
+			treap.pars[p] = u
+		} else {
+			treap.pars[u] = pp
+			treap.pars[p] = u
+			treap.root = u
 		}
 	} else { // right rotate
 		treap.rights[p] = treap.lefts[u]
+		if treap.lefts[u] >= 0 {
+			treap.pars[treap.lefts[u]] = p
+		}
 		treap.lefts[u] = p
 		if pp := treap.pars[p]; pp >= 0 {
 			if treap.lefts[pp] == p {
@@ -237,18 +265,24 @@ func (treap *Treap) rotate(u int) {
 			} else {
 				treap.rights[pp] = u
 			}
+			treap.pars[u] = pp
+			treap.pars[p] = u
+		} else {
+			treap.pars[u] = pp
+			treap.pars[p] = u
+			treap.root = u
 		}
 	}
 }
 
 func (treap *Treap) rotateToTop(u int) {
-	for p := treap.pars[u]; p >= 0 && treap.keys[p] <= treap.keys[u]; {
+	for p := treap.pars[u]; p >= 0 && treap.keys[p] <= treap.keys[u]; p = treap.pars[u] {
 		treap.rotate(u)
 	}
 }
 
 func (treap *Treap) rotateToBottom(u int) {
-	for left, right := treap.lefts[u], treap.rights[u]; left >= 0 || right >= 0; {
+	for left, right := treap.lefts[u], treap.rights[u]; left >= 0 || right >= 0; left, right = treap.lefts[u], treap.rights[u] {
 		if left >= 0 && right >= 0 {
 			if treap.keys[left] >= treap.keys[right] { //left is bigger
 				treap.rotate(left)
@@ -263,64 +297,63 @@ func (treap *Treap) rotateToBottom(u int) {
 	}
 }
 
+func (treap *Treap) print(u int) {
+	if u < 0 {
+		fmt.Print("nil", ",")
+		return
+	}
+
+	treap.print(treap.lefts[u])
+	fmt.Print(u, "-", treap.vals[u], ",")
+	treap.print(treap.rights[u])
+}
+
 ///////////////////////////////////////
 
 type Pair struct {
-	num int
-	ids []int
+	a, c int
 }
 
-func cmp(a, b interface{}) int {
-	return a.(*Pair).num - b.(*Pair).num
-}
-
-func twoSum(nums []int, target int) []int {
-	mp := NewTreap(cmp)
-	for i, a := range nums {
+func findKthLargest(nums []int, k int) int {
+	mp := NewTreap(func(a, b interface{}) int { return a.(*Pair).a - b.(*Pair).a })
+	cnt := 0
+	for _, a := range nums {
 		p := &Pair{
-			num: a,
-		}
-		if mp.Get(p) < 0 {
-			mp.Put(p)
+			a: a,
 		}
 
-		p = (mp.vals[mp.Get(p)]).(*Pair)
-		p.ids = append(p.ids, i)
-	}
-
-	res := []int{-1, -1}
-
-	for i, a := range nums {
-		t := target - a
-		p := &Pair{
-			num: t,
-		}
 		it := mp.Get(p)
-		if it >= 0 {
-			if t == a {
-				ids := mp.vals[it].(*Pair).ids
-				if len(ids) > 1 {
-					res[0] = ids[0]
-					res[1] = ids[1]
-					return res
-				}
 
-			} else {
-				res[0] = i
-				res[1] = mp.vals[it].(*Pair).ids[0]
-				return res
-			}
+		if it < 0 {
+			it = mp.Put(p)
 		}
-	}
-	return res
 
+		p = mp.vals[it].(*Pair)
+		p.c++
+
+		cnt++
+
+		if cnt > k {
+			it = mp.First()
+			p = mp.vals[it].(*Pair)
+
+			if p.c == 1 {
+				mp.Remove(p)
+			} else {
+				p.c--
+			}
+			cnt--
+		}
+
+	}
+	return mp.vals[mp.First()].(*Pair).a
 }
 
 func main() {
 
-	nums := []int{3, 3}
-	target := 6
+	nums := []int{3, 2, 3, 1, 2, 4, 5, 5, 6}
+	k := 4
 
-	fmt.Println(twoSum(nums, target))
+	fmt.Println(findKthLargest(nums, k))
 
 }
