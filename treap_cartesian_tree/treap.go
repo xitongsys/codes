@@ -271,20 +271,20 @@ type Pair struct {
 }
 
 func cmp(a, b interface{}) int {
-	return a.(Pair).num - b.(Pair).num
+	return a.(*Pair).num - b.(*Pair).num
 }
 
 func twoSum(nums []int, target int) []int {
 	mp := NewTreap(cmp)
 	for i, a := range nums {
-		p := Pair{
+		p := &Pair{
 			num: a,
 		}
 		if mp.Get(p) < 0 {
 			mp.Put(p)
 		}
 
-		p = mp.vals[mp.Get(p)].(Pair)
+		p = (mp.vals[mp.Get(p)]).(*Pair)
 		p.ids = append(p.ids, i)
 	}
 
@@ -292,13 +292,13 @@ func twoSum(nums []int, target int) []int {
 
 	for i, a := range nums {
 		t := target - a
-		p := Pair{
+		p := &Pair{
 			num: t,
 		}
 		it := mp.Get(p)
 		if it >= 0 {
 			if t == a {
-				ids := mp.vals[it].(Pair).ids
+				ids := mp.vals[it].(*Pair).ids
 				if len(ids) > 1 {
 					res[0] = ids[0]
 					res[1] = ids[1]
@@ -307,7 +307,7 @@ func twoSum(nums []int, target int) []int {
 
 			} else {
 				res[0] = i
-				res[1] = mp.vals[it].(Pair).ids[0]
+				res[1] = mp.vals[it].(*Pair).ids[0]
 				return res
 			}
 		}
@@ -318,8 +318,8 @@ func twoSum(nums []int, target int) []int {
 
 func main() {
 
-	nums := []int{2, 7, 11, 15}
-	target := 9
+	nums := []int{3, 3}
+	target := 6
 
 	fmt.Println(twoSum(nums, target))
 
