@@ -48,7 +48,7 @@ func (treap *Treap) Get(val interface{}) int {
 	return -1
 }
 
-func (treap *Treap) Put(val interface{}) int {
+func (treap *Treap) Put(val interface{}, key interface{}) int {
 	v := treap.root
 	for v >= 0 {
 		flag := treap.cmp(treap.vals[v], val)
@@ -56,7 +56,7 @@ func (treap *Treap) Put(val interface{}) int {
 			if treap.lefts[v] >= 0 {
 				v = treap.lefts[v]
 			} else {
-				u := treap.newNode(val)
+				u := treap.newNode(val, key)
 				treap.lefts[v] = u
 				treap.pars[u] = v
 				return u
@@ -66,7 +66,7 @@ func (treap *Treap) Put(val interface{}) int {
 			if treap.rights[v] >= 0 {
 				v = treap.rights[v]
 			} else {
-				u := treap.newNode(val)
+				u := treap.newNode(val, key)
 				treap.rights[v] = u
 				treap.pars[u] = v
 				return u
@@ -78,7 +78,7 @@ func (treap *Treap) Put(val interface{}) int {
 		}
 	}
 
-	u := treap.newNode(val)
+	u := treap.newNode(val, key)
 	treap.root = u
 	return u
 }
@@ -196,8 +196,14 @@ func (treap *Treap) Last() int {
 	return u
 }
 
-func (treap *Treap) newNode(val interface{}) int {
-	key := rand.Int()
+func (treap *Treap) newNode(val interface{}, keyi interface{}) int {
+	key := 0
+	if keyi == nil {
+		key = rand.Int()
+	} else {
+		key = keyi.(int)
+	}
+
 	u := treap.n
 	if cd := len(treap.dels); cd > 0 {
 		u = treap.dels[cd-1]
@@ -330,7 +336,7 @@ func findKthLargest(nums []int, k int) int {
 		it := mp.Get(p)
 
 		if it < 0 {
-			it = mp.Put(p)
+			it = mp.Put(p, nil)
 		}
 
 		p = mp.vals[it].(*Pair)
