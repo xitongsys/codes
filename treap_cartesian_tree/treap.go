@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -257,6 +258,64 @@ func (treap *Treap) rotateToBottom(u int) {
 	}
 }
 
+///////////////////////////////////////
+
+type Pair struct {
+	num int
+	ids []int
+}
+
+func cmp(a, b interface{}) int {
+	return a.(Pair).num - b.(Pair).num
+}
+
+func twoSum(nums []int, target int) []int {
+	mp := NewTreap(cmp)
+	for i, a := range nums {
+		p := Pair{
+			num: a,
+		}
+		if mp.Get(p) < 0 {
+			mp.Put(p)
+		}
+
+		p = mp.vals[mp.Get(p)].(Pair)
+		p.ids = append(p.ids, i)
+	}
+
+	res := []int{-1, -1}
+
+	for i, a := range nums {
+		t := target - a
+		p := Pair{
+			num: t,
+		}
+		it := mp.Get(p)
+		if it >= 0 {
+			if t == a {
+				ids := mp.vals[it].(Pair).ids
+				if len(ids) > 1 {
+					res[0] = ids[0]
+					res[1] = ids[1]
+					return res
+				}
+
+			} else {
+				res[0] = i
+				res[1] = mp.vals[it].(Pair).ids[0]
+				return res
+			}
+		}
+	}
+	return res
+
+}
+
 func main() {
+
+	nums := []int{2, 7, 11, 15}
+	target := 9
+
+	fmt.Println(twoSum(nums, target))
 
 }
