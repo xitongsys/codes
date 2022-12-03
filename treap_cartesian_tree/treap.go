@@ -25,7 +25,7 @@ func NewTreap(cmp func(a, b interface{}) int) *Treap {
 
 func (treap *Treap) Get(val interface{}) int {
 	v := treap.root
-	for {
+	for v >= 0 {
 		flag := treap.cmp(treap.vals[v], val)
 		if flag > 0 {
 			if treap.lefts[v] >= 0 {
@@ -45,11 +45,12 @@ func (treap *Treap) Get(val interface{}) int {
 			return v
 		}
 	}
+	return -1
 }
 
 func (treap *Treap) Put(val interface{}) int {
 	v := treap.root
-	for {
+	for v >= 0 {
 		flag := treap.cmp(treap.vals[v], val)
 		if flag > 0 {
 			if treap.lefts[v] >= 0 {
@@ -76,6 +77,10 @@ func (treap *Treap) Put(val interface{}) int {
 			return v
 		}
 	}
+
+	u := treap.newNode(val)
+	treap.root = u
+	return u
 }
 
 func (treap *Treap) Remove(val interface{}) {
