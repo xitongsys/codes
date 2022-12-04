@@ -94,36 +94,41 @@ func (tree *AVLTree) Get(val interface{}) int {
 
 func (tree *AVLTree) Remove(val interface{}) {
 	if u := tree.Get(val); u >= 0 {
-		tree.remove(u)
-	}
-}
+		v := u
+		if left := tree.lefts[u]; left >= 0 {
+			v = left
+			for tree.rights[v] >= 0 {
+				v = tree.rights[v]
+			}
 
-func (tree *AVLTree) remove(u int) {
-	if right := tree.rights[u]; right >= 0 {
-		tree.Vals[u] = tree.Vals[right]
-		tree.remove(right)
+		} else if right := tree.rights[u]; right >= 0 {
+			v = right
+			for tree.lefts[v] >= 0 {
+				v = tree.lefts[v]
+			}
+		}
 
-	} else if left := tree.lefts[u]; left >= 0 {
-		tree.Vals[u] = tree.Vals[left]
-		tree.remove(left)
+		tree.Vals[u] = tree.Vals[v]
 
-	} else {
-		p := tree.pars[u]
-		if p < 0 {
-			tree.Root = -1
-		} else {
-			if tree.lefts[p] == u {
+		if p := tree.pars[v]; p >= 0 {
+			if tree.lefts[p] == v {
 				tree.lefts[p] = -1
 			} else {
 				tree.rights[p] = -1
 			}
-		}
-		tree.delNode(u)
-		return
-	}
 
-	tree.fixHeight(u)
-	tree.balance(u)
+			for p >= 0 {
+				tree.fixHeight(p)
+				tree.balance(p)
+				p = tree.pars[p]
+			}
+
+		} else {
+			tree.Root = -1
+		}
+
+		tree.delNode(v)
+	}
 }
 
 func (tree *AVLTree) Next(u int) int {
@@ -433,6 +438,7 @@ func maxResult(nums []int, k int) int {
 
 			del(dp[i+k])
 		}
+
 	}
 
 	//fmt.Println(dp)
@@ -445,5 +451,4 @@ func main() {
 	k := 2
 
 	fmt.Println(maxResult(nums, k))
-
 }
