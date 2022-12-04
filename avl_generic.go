@@ -12,13 +12,6 @@ type AVLTree[TVal any] struct {
 	cmp                 func(a, b TVal) int
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func NewAVLTree[TVal any](cmp func(a, b TVal) int) *AVLTree[TVal] {
 	tree := &AVLTree[TVal]{
 		Root: -1,
@@ -287,7 +280,11 @@ func (tree *AVLTree[TVal]) fixHeight(u int) {
 		rightH = tree.heights[right]
 	}
 
-	tree.heights[u] = max(leftH, rightH) + 1
+	if leftH > rightH {
+		tree.heights[u] = leftH + 1
+	} else {
+		tree.heights[u] = rightH + 1
+	}
 }
 
 func (tree *AVLTree[TVal]) rotateLeft(u int) {
