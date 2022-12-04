@@ -60,6 +60,7 @@ func (treap *Treap) Put(val interface{}, key interface{}) int {
 				u := treap.newNode(val, key)
 				treap.lefts[v] = u
 				treap.pars[u] = v
+				treap.rotateToTop(u)
 				return u
 			}
 
@@ -70,6 +71,7 @@ func (treap *Treap) Put(val interface{}, key interface{}) int {
 				u := treap.newNode(val, key)
 				treap.rights[v] = u
 				treap.pars[u] = v
+				treap.rotateToTop(u)
 				return u
 			}
 
