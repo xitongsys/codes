@@ -651,14 +651,14 @@ func (mtreeset *MultiTreeSet[TKey]) GetKey(iterator int) (key TKey, count int, e
 //////////////////////////
 
 // math //////////////////////
-func Max(a, b int) int {
+func max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func Min(a, b int) int {
+func min(a, b int) int {
 	if a > b {
 		return b
 	}
@@ -670,6 +670,22 @@ func gcd(a, b int64) int64 {
 		return b
 	}
 	return gcd(b%a, a)
+}
+
+func mpow(a, n, mod int64) int64 {
+	if n == 0 {
+		return 1
+	}
+	r := mpow(a, n/2, mod)
+	r = (r * r) % mod
+	if n%2 == 1 {
+		r *= a
+	}
+	return r % mod
+}
+
+func inv(a, mod int64) int64 {
+	return mpow(a%mod, mod-2, mod)
 }
 
 //////////////////////////////
