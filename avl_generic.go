@@ -454,6 +454,15 @@ func (treemap *TreeMap[TKey, TValue]) GetKeyValue(iterator int) (key TKey, value
 	return
 }
 
+func (treemap *TreeMap[TKey, TValue]) GetKeyValuePointer(iterator int) *KeyValue[TKey, TValue] {
+	if iterator < 0 || iterator >= len(treemap.avlTree.Vals) {
+		return nil
+	}
+
+	kv := treemap.avlTree.Vals[iterator]
+	return kv
+}
+
 func (treemap *TreeMap[TKey, TValue]) Next(iterator int) int {
 	return treemap.avlTree.Next(iterator)
 }
@@ -496,18 +505,18 @@ func maxResult(nums []int, k int) int {
 			mp.Put(val, 0)
 		}
 
-		c, _ := mp.Get(val)
-		mp.Put(val, c+1)
+		it := mp.GetKeyValuePointer(mp.Find(val))
+		it.value++
+
 		mpc++
 	}
 
 	del := func(val int) {
-		c, _ := mp.Get(val)
-		c--
-		if c == 0 {
+		p := mp.GetKeyValuePointer(mp.Find(val))
+		p.value--
+
+		if p.value == 0 {
 			mp.Remove(val)
-		} else {
-			mp.Put(val, c)
 		}
 		mpc--
 	}
