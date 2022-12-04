@@ -67,6 +67,10 @@ func (tree *AVLTree[TVal]) put(u int, val TVal) int {
 	return v
 }
 
+func (tree *AVLTree[TVal]) Size() int {
+	return tree.N
+}
+
 func (tree *AVLTree[TVal]) Get(val TVal) int {
 	v := tree.Root
 	for v >= 0 {
@@ -395,6 +399,10 @@ func NewTreeMap[TKey any, TValue any](cmp func(a, b TKey) int) *TreeMap[TKey, TV
 	return mp
 }
 
+func (treemap *TreeMap[TKey, TValue]) Size() int {
+	return treemap.avlTree.Size()
+}
+
 func (treemap *TreeMap[TKey, TValue]) Get(key TKey) (value TValue, err error) {
 	kv := &KeyValue[TKey, TValue]{
 		key: key,
@@ -495,53 +503,173 @@ func (treemap *TreeMap[TKey, TValue]) Last() int {
 
 ////////////////////////////////
 
+type TreeSet[TKey any] struct {
+	avlTree *AVLTree[TKey]
+}
+
+func NewTreeSet[TKey any](cmp func(a, b TKey) int) *TreeSet[TKey] {
+	mp := &TreeSet[TKey]{
+		avlTree: NewAVLTree[TKey](cmp),
+	}
+	return mp
+}
+
+func (treeset *TreeSet[TKey]) Size() int {
+	return treeset.avlTree.Size()
+}
+
+func (treeset *TreeSet[TKey]) Put(key TKey) {
+	treeset.avlTree.Put(key)
+}
+
+func (treeset *TreeSet[TKey]) Remove(key TKey) {
+	treeset.avlTree.Remove(key)
+}
+
+func (treeset *TreeSet[TKey]) Has(key TKey) bool {
+	u := treeset.avlTree.Get(key)
+	return u >= 0
+}
+
+func (treeset *TreeSet[TKey]) Find(key TKey) int {
+	u := treeset.avlTree.Get(key)
+	return u
+}
+
+func (treeset *TreeSet[TKey]) GetKey(iterator int) (key TKey, err error) {
+	if iterator < 0 || iterator >= len(treeset.avlTree.Vals) {
+		err = fmt.Errorf("iterator out of bound")
+		return
+	}
+
+	key = treeset.avlTree.Vals[iterator]
+	return
+}
+
+func (treeset *TreeSet[TKey]) Next(iterator int) int {
+	return treeset.avlTree.Next(iterator)
+}
+
+func (treeset *TreeSet[TKey]) Prev(iterator int) int {
+	return treeset.avlTree.Prev(iterator)
+}
+
+func (treeset *TreeSet[TKey]) LowerBound(key TKey) int {
+	return treeset.avlTree.LowerBound(key)
+}
+
+func (treeset *TreeSet[TKey]) UpperBound(key TKey) int {
+	return treeset.avlTree.UpperBound(key)
+}
+
+func (treeset *TreeSet[TKey]) First() int {
+	return treeset.avlTree.First()
+}
+
+func (treeset *TreeSet[TKey]) Last() int {
+	return treeset.avlTree.Last()
+}
+
+/////////////////////////////////
+
+type MultiTreeSet[TKey any] struct {
+	*TreeMap[TKey, int]
+	N int
+}
+
+func NewMultiTreeSet[TKey any](cmp func(a, b TKey) int) *MultiTreeSet[TKey] {
+	mp := &MultiTreeSet[TKey]{}
+	mp.TreeMap = NewTreeMap[TKey, int](cmp)
+	return mp
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Size() int {
+	return mtreeset.N
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Put(key TKey) {
+	if !mtreeset.Has(key) {
+		mtreeset.TreeMap.Put(key, 0)
+	}
+	mtreeset.TreeMap.GetKeyValuePointer(mtreeset.TreeMap.Find(key)).value++
+	mtreeset.N++
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Remove(key TKey) {
+	it := mtreeset.TreeMap.Find(key)
+	if it < 0 {
+		return
+	}
+
+	kv := mtreeset.TreeMap.GetKeyValuePointer(it)
+	kv.value--
+	if kv.value <= 0 {
+		mtreeset.TreeMap.Remove(key)
+	}
+	mtreeset.N--
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Has(key TKey) bool {
+	return mtreeset.TreeMap.Has(key)
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Count(key TKey) int {
+	it := mtreeset.TreeMap.Find(key)
+	if it < 0 {
+		return 0
+	}
+
+	kv := mtreeset.TreeMap.GetKeyValuePointer(it)
+	return kv.value
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Find(key TKey) int {
+	return mtreeset.TreeMap.Find(key)
+}
+
+func (mtreeset *MultiTreeSet[TKey]) LowerBound(key TKey) int {
+	return mtreeset.TreeMap.LowerBound(key)
+}
+
+func (mtreeset *MultiTreeSet[TKey]) UpperBound(key TKey) int {
+	return mtreeset.TreeMap.UpperBound(key)
+}
+
+func (mtreeset *MultiTreeSet[TKey]) First() int {
+	return mtreeset.TreeMap.First()
+}
+
+func (mtreeset *MultiTreeSet[TKey]) Last() int {
+	return mtreeset.TreeMap.Last()
+}
+
+func (mtreeset *MultiTreeSet[TKey]) GetKey(iterator int) (key TKey, count int, err error) {
+	return mtreeset.GetKeyValue(iterator)
+}
+
+//////////////////////////
+
 func maxResult(nums []int, k int) int {
-
-	mp := NewTreeMap[int, int](func(a, b int) int { return a - b })
-	mpc := 0
-
-	add := func(val int) {
-		if !mp.Has(val) {
-			mp.Put(val, 0)
-		}
-
-		it := mp.GetKeyValuePointer(mp.Find(val))
-		it.value++
-
-		mpc++
-	}
-
-	del := func(val int) {
-		p := mp.GetKeyValuePointer(mp.Find(val))
-		p.value--
-
-		if p.value == 0 {
-			mp.Remove(val)
-		}
-		mpc--
-	}
-
+	mst := NewMultiTreeSet[int](func(a, b int) int { return a - b })
 	n := len(nums)
 	dp := make([]int, n)
 
 	for i := n - 1; i >= 0; i-- {
 
 		dp[i] = nums[i]
-		if mpc > 0 {
-			mx, _, _ := mp.GetKeyValue(mp.Last())
+		if mst.Size() > 0 {
+			mx, _, _ := mst.GetKey(mst.Last())
+
 			dp[i] = nums[i] + mx
 		}
 
-		add(dp[i])
+		mst.Put(dp[i])
 
-		if mpc > k {
-
-			del(dp[i+k])
+		if mst.Size() > k {
+			mst.Remove(dp[i+k])
 		}
 
 	}
-
-	//fmt.Println(dp)
 
 	return dp[0]
 }
